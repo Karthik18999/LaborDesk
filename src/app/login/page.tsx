@@ -27,14 +27,14 @@ export default function LoginPage() {
   // Auth Mode: 'signin' | 'signup'
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
 
-  // Success / Error Banners
+  // Banners
   const [signUpSuccessMsg, setSignUpSuccessMsg] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Form State - Admin Sign In
   const [adminSignIn, setAdminSignIn] = useState({
-    email: 'admin@labordesk.in',
-    password: 'admin123',
+    email: '',
+    password: '',
   });
 
   // Form State - Admin Sign Up
@@ -48,8 +48,8 @@ export default function LoginPage() {
 
   // Form State - Company Sign In
   const [companySignIn, setCompanySignIn] = useState({
-    email: 'hr@ltconst.com',
-    password: 'company123',
+    email: '',
+    password: '',
   });
 
   // Form State - Company Sign Up
@@ -66,16 +66,16 @@ export default function LoginPage() {
 
   const [showCustomIndustryInput, setShowCustomIndustryInput] = useState(false);
 
-  // Handle Admin Submit (Strict Validation)
+  // Strict Admin Submit
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSignUpSuccessMsg(null);
     setErrorMessage(null);
 
-    // SIGN UP FLOW
+    // SIGN UP
     if (authMode === 'signup') {
       if (adminSignUp.password !== adminSignUp.confirmPassword) {
-        setErrorMessage('Password and Confirm Password do not match.');
+        setErrorMessage('Passwords do not match. Please re-enter your password.');
         return;
       }
       if (adminSignUp.password.length < 4) {
@@ -83,67 +83,69 @@ export default function LoginPage() {
         return;
       }
 
-      // Check if email already registered
-      const existingUser = registeredUsers.find((u) => u.email.toLowerCase() === adminSignUp.email.toLowerCase());
+      const existingUser = registeredUsers.find((u) => u.email.toLowerCase() === adminSignUp.email.trim().toLowerCase());
       if (existingUser) {
-        setErrorMessage('This email is already registered. Please sign in with your password.');
+        setErrorMessage('This email is already registered. Please sign in with your credentials.');
         return;
       }
 
-      // Register new Admin user
       addRegisteredUser({
         name: adminSignUp.fullName,
-        email: adminSignUp.email,
+        email: adminSignUp.email.trim(),
         password: adminSignUp.password,
         role: 'admin',
       });
 
-      // Show success message and require signing in
-      setSignUpSuccessMsg(`Account created for ${adminSignUp.fullName}! Please sign in below using your password.`);
-      setAdminSignIn({ email: adminSignUp.email, password: '' });
+      setSignUpSuccessMsg(`Admin account created for ${adminSignUp.fullName}! Please sign in below.`);
+      setAdminSignIn({ email: adminSignUp.email.trim(), password: '' });
       setAuthMode('signin');
 
       addToast({
-        title: 'Admin Account Registered',
-        description: 'Please sign in with your credentials.',
+        title: 'Admin Registered',
+        description: 'Account created. Please sign in with your password.',
         variant: 'success',
       });
       return;
     }
 
-    // SIGN IN FLOW (Strict Validation)
+    // SIGN IN (STRICT)
     const inputEmail = adminSignIn.email.trim().toLowerCase();
     const inputPassword = adminSignIn.password;
 
-    // Check against registered users
+    if (!inputEmail || !inputPassword) {
+      setErrorMessage('Please enter both Email and Password.');
+      return;
+    }
+
+    // Lookup user in registered memory or default demo
     const matchedUser = registeredUsers.find(
       (u) => u.role === 'admin' && u.email.toLowerCase() === inputEmail
     );
 
-    const isDefaultDemo = inputEmail === 'admin@labordesk.in' && (inputPassword === 'admin123' || inputPassword === '••••••••');
-    const isValidPassword = matchedUser ? matchedUser.password === inputPassword : false;
+    const isDefaultAdmin = inputEmail === 'admin@labordesk.in' && (inputPassword === 'admin123' || inputPassword === '••••••••');
+    const isPasswordCorrect = matchedUser ? matchedUser.password === inputPassword : false;
 
-    if (!matchedUser && !isDefaultDemo) {
-      setErrorMessage('No admin account found with this email. Please check your credentials or Sign Up.');
+    if (!matchedUser && !isDefaultAdmin) {
+      setErrorMessage('Invalid Email or Password. No admin account found with these credentials.');
       addToast({
-        title: 'Authentication Failed',
-        description: 'Invalid admin email address.',
+        title: 'Access Denied',
+        description: 'Invalid credentials. Please try again.',
         variant: 'destructive',
       });
       return;
     }
 
-    if (!isDefaultDemo && !isValidPassword) {
-      setErrorMessage('Incorrect password entered. Please try again.');
+    if (!isDefaultAdmin && !isPasswordCorrect) {
+      setErrorMessage('Incorrect password. Please verify your password and try again.');
       addToast({
-        title: 'Authentication Failed',
-        description: 'Incorrect admin password.',
+        title: 'Access Denied',
+        description: 'Incorrect password.',
         variant: 'destructive',
       });
       return;
     }
 
-    // Success Login
+    // Authenticated
     const loggedInName = matchedUser?.name || 'Central Administrator';
 
     setCurrentUser({
@@ -155,29 +157,28 @@ export default function LoginPage() {
     setRole('admin');
     addToast({
       title: `Welcome, ${loggedInName}!`,
-      description: 'Logged into Central Admin Operations Console.',
+      description: 'Authenticated successfully as Administrator.',
       variant: 'success',
     });
     router.push('/admin');
   };
 
-  // Handle Company Submit (Strict Validation)
+  // Strict Company Submit
   const handleCompanySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSignUpSuccessMsg(null);
     setErrorMessage(null);
 
-    // SIGN UP FLOW
+    // SIGN UP
     if (authMode === 'signup') {
       if (companySignUp.password.length < 4) {
         setErrorMessage('Password must be at least 4 characters long.');
         return;
       }
 
-      // Check if email already registered
-      const existingUser = registeredUsers.find((u) => u.email.toLowerCase() === companySignUp.email.toLowerCase());
+      const existingUser = registeredUsers.find((u) => u.email.toLowerCase() === companySignUp.email.trim().toLowerCase());
       if (existingUser) {
-        setErrorMessage('This work email is already registered. Please sign in.');
+        setErrorMessage('This work email is already registered. Please sign in with your credentials.');
         return;
       }
 
@@ -187,44 +188,46 @@ export default function LoginPage() {
         addIndustry(finalIndustry);
       }
 
-      // Add Company to registry
       addCompany({
         companyName: companySignUp.companyName,
         gstNumber: companySignUp.gstNumber,
         industry: finalIndustry,
         contactPerson: companySignUp.contactPerson,
         phone: companySignUp.phone,
-        email: companySignUp.email,
+        email: companySignUp.email.trim(),
         officeAddress: 'Bengaluru Corporate Hub',
         subscriptionPlan: 'Pro',
         status: 'Active',
       });
 
-      // Add Registered User Profile
       addRegisteredUser({
         name: companySignUp.contactPerson,
-        email: companySignUp.email,
+        email: companySignUp.email.trim(),
         password: companySignUp.password,
         role: 'company',
         companyName: companySignUp.companyName,
       });
 
-      // Show success message and require signing in with credentials
-      setSignUpSuccessMsg(`Registration successful for ${companySignUp.companyName}! Please sign in below with your password.`);
-      setCompanySignIn({ email: companySignUp.email, password: '' });
+      setSignUpSuccessMsg(`Registration complete for ${companySignUp.companyName}! Please sign in below.`);
+      setCompanySignIn({ email: companySignUp.email.trim(), password: '' });
       setAuthMode('signin');
 
       addToast({
-        title: 'Company Registration Completed',
-        description: 'Please sign in with your email & password.',
+        title: 'Company Registered',
+        description: 'Account created. Please sign in with your password.',
         variant: 'success',
       });
       return;
     }
 
-    // SIGN IN FLOW (Strict Validation)
+    // SIGN IN (STRICT)
     const inputEmail = companySignIn.email.trim().toLowerCase();
     const inputPassword = companySignIn.password;
+
+    if (!inputEmail || !inputPassword) {
+      setErrorMessage('Please enter both Work Email and Password.');
+      return;
+    }
 
     const matchedUser = registeredUsers.find(
       (u) => u.role === 'company' && u.email.toLowerCase() === inputEmail
@@ -234,23 +237,23 @@ export default function LoginPage() {
       (c) => c.email.toLowerCase() === inputEmail
     );
 
-    const isDefaultDemo = inputEmail === 'hr@ltconst.com' && (inputPassword === 'company123' || inputPassword === '••••••••');
-    const isValidPassword = matchedUser ? matchedUser.password === inputPassword : false;
+    const isDefaultCompany = inputEmail === 'hr@ltconst.com' && (inputPassword === 'company123' || inputPassword === '••••••••');
+    const isPasswordCorrect = matchedUser ? matchedUser.password === inputPassword : false;
 
-    if (!matchedUser && !matchedCompany && !isDefaultDemo) {
-      setErrorMessage('No company account found with this email. Please Sign Up for a new corporate account.');
+    if (!matchedUser && !matchedCompany && !isDefaultCompany) {
+      setErrorMessage('Invalid Email or Password. No company account found with this email.');
       addToast({
-        title: 'Authentication Failed',
-        description: 'Invalid company email.',
+        title: 'Access Denied',
+        description: 'Invalid credentials. Check your email or Sign Up.',
         variant: 'destructive',
       });
       return;
     }
 
-    if (!isDefaultDemo && !isValidPassword) {
-      setErrorMessage('Incorrect password entered for company portal. Please try again.');
+    if (!isDefaultCompany && !isPasswordCorrect) {
+      setErrorMessage('Incorrect password for this company account. Please try again.');
       addToast({
-        title: 'Authentication Failed',
+        title: 'Access Denied',
         description: 'Incorrect password.',
         variant: 'destructive',
       });
@@ -274,7 +277,7 @@ export default function LoginPage() {
     setRole('company');
     addToast({
       title: `Welcome, ${loggedInName}!`,
-      description: 'Logged into Corporate Client Portal.',
+      description: 'Authenticated successfully to Corporate Portal.',
       variant: 'success',
     });
     router.push('/company');
@@ -378,7 +381,7 @@ export default function LoginPage() {
             <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-900 dark:text-rose-200 text-xs flex items-start gap-2.5 font-medium">
               <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-rose-900 dark:text-rose-300">Authentication Error</p>
+                <p className="font-bold text-rose-900 dark:text-rose-300">Authentication Failed</p>
                 <p className="text-[11px] mt-0.5 text-rose-700 dark:text-rose-300">{errorMessage}</p>
               </div>
             </div>
@@ -392,6 +395,16 @@ export default function LoginPage() {
                 <p className="font-bold text-emerald-900 dark:text-emerald-300">Registration Complete!</p>
                 <p className="text-[11px] mt-0.5 text-emerald-700 dark:text-emerald-300">{signUpSuccessMsg}</p>
               </div>
+            </div>
+          )}
+
+          {/* Quick Demo Helper Hint */}
+          {authMode === 'signin' && (
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
+              <span>Demo Login:</span>
+              <span className="font-mono font-bold text-brand-600 dark:text-brand-400">
+                {activeTab === 'admin' ? 'admin@labordesk.in / admin123' : 'hr@ltconst.com / company123'}
+              </span>
             </div>
           )}
 
@@ -429,6 +442,7 @@ export default function LoginPage() {
                         type="password"
                         value={companySignIn.password}
                         onChange={(e) => setCompanySignIn({ ...companySignIn, password: e.target.value })}
+                        placeholder="Enter password"
                         className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                       />
                     </div>
@@ -540,7 +554,7 @@ export default function LoginPage() {
                       type="password"
                       value={companySignUp.password}
                       onChange={(e) => setCompanySignUp({ ...companySignUp, password: e.target.value })}
-                      placeholder="••••••••"
+                      placeholder="Enter password"
                       className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                     />
                   </div>
@@ -591,6 +605,7 @@ export default function LoginPage() {
                         type="password"
                         value={adminSignIn.password}
                         onChange={(e) => setAdminSignIn({ ...adminSignIn, password: e.target.value })}
+                        placeholder="Enter password"
                         className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                       />
                     </div>
@@ -652,7 +667,7 @@ export default function LoginPage() {
                         type="password"
                         value={adminSignUp.password}
                         onChange={(e) => setAdminSignUp({ ...adminSignUp, password: e.target.value })}
-                        placeholder="••••••••"
+                        placeholder="Enter password"
                         className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                       />
                     </div>
@@ -663,7 +678,7 @@ export default function LoginPage() {
                         type="password"
                         value={adminSignUp.confirmPassword}
                         onChange={(e) => setAdminSignUp({ ...adminSignUp, confirmPassword: e.target.value })}
-                        placeholder="••••••••"
+                        placeholder="Confirm password"
                         className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                       />
                     </div>
