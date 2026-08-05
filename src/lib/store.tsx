@@ -118,16 +118,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<UserRole | 'guest'>('guest');
   const [currentCompanyId, setCurrentCompanyId] = useState<string>('CMP-2001');
 
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
-    name: 'Central Administrator',
-    email: 'admin@labordesk.in',
-    role: 'admin',
-  });
+  // No hardcoded default demo user
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
 
-  const [registeredUsers, setRegisteredUsers] = useState<UserProfile[]>([
-    { name: 'Central Administrator', email: 'admin@labordesk.in', password: 'admin123', role: 'admin' },
-    { name: 'Vikrant Deshmukh', email: 'hr@ltconst.com', password: 'company123', role: 'company', companyName: 'L&T Infrastructure Construtec Ltd' },
-  ]);
+  // No hardcoded default demo user credentials
+  const [registeredUsers, setRegisteredUsers] = useState<UserProfile[]>([]);
 
   const [industries, setIndustries] = useState<string[]>(DEFAULT_INDUSTRIES);
 
@@ -231,7 +226,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
     setCompanies((prev) => [newCompany, ...prev]);
 
-    // Ensure industry is added if new
     if (newCompany.industry && !industries.includes(newCompany.industry)) {
       setIndustries((prev) => [...prev, newCompany.industry]);
     }
@@ -257,7 +251,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
     setRequests((prev) => [newReq, ...prev]);
 
-    // Notify Admin
     setNotifications((prev) => [
       {
         id: `NOTIF-${Date.now()}`,
@@ -313,12 +306,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       })
     );
 
-    // Update worker status to Assigned
     setWorkers((prev) =>
       prev.map((w) => (workerIds.includes(w.id) ? { ...w, currentStatus: 'Assigned', availability: false } : w))
     );
 
-    // Notify Company
     setNotifications((prev) => [
       {
         id: `NOTIF-${Date.now()}`,

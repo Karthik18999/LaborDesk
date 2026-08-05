@@ -31,7 +31,7 @@ export default function LoginPage() {
   const [signUpSuccessMsg, setSignUpSuccessMsg] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Form State - Admin Sign In (Explicitly Empty Default)
+  // Form State - Admin Sign In (100% EMPTY DEFAULT)
   const [adminSignIn, setAdminSignIn] = useState({
     email: '',
     password: '',
@@ -46,7 +46,7 @@ export default function LoginPage() {
     confirmPassword: '',
   });
 
-  // Form State - Company Sign In (Explicitly Empty Default)
+  // Form State - Company Sign In (100% EMPTY DEFAULT)
   const [companySignIn, setCompanySignIn] = useState({
     email: '',
     password: '',
@@ -81,7 +81,7 @@ export default function LoginPage() {
     return { score: 3, label: 'Strong', color: 'bg-emerald-500 text-emerald-600', barWidth: '100%' };
   };
 
-  // Strict Admin Submit
+  // Strict Admin Submit (Only Registered Users Allowed)
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSignUpSuccessMsg(null);
@@ -123,7 +123,7 @@ export default function LoginPage() {
       return;
     }
 
-    // SIGN IN (STRICT)
+    // SIGN IN (STRICT - NO DEFAULT FALLBACKS)
     const inputEmail = adminSignIn.email.trim().toLowerCase();
     const inputPassword = adminSignIn.password;
 
@@ -136,21 +136,18 @@ export default function LoginPage() {
       (u) => u.role === 'admin' && u.email.toLowerCase() === inputEmail
     );
 
-    const isDefaultAdmin = inputEmail === 'admin@labordesk.in' && inputPassword === 'admin123';
-    const isPasswordCorrect = matchedUser ? matchedUser.password === inputPassword : false;
-
-    if (!matchedUser && !isDefaultAdmin) {
-      setErrorMessage('Invalid Email or Password. No admin account found with these credentials.');
+    if (!matchedUser) {
+      setErrorMessage('No admin account found with this email. Please Sign Up to create an account.');
       addToast({
         title: 'Access Denied',
-        description: 'Invalid credentials. Please try again.',
+        description: 'Unregistered admin email address.',
         variant: 'destructive',
       });
       return;
     }
 
-    if (!isDefaultAdmin && !isPasswordCorrect) {
-      setErrorMessage('Incorrect password. Please verify your password and try again.');
+    if (matchedUser.password !== inputPassword) {
+      setErrorMessage('Incorrect password. Please verify your credentials and try again.');
       addToast({
         title: 'Access Denied',
         description: 'Incorrect password.',
@@ -159,7 +156,7 @@ export default function LoginPage() {
       return;
     }
 
-    const loggedInName = matchedUser?.name || 'Central Administrator';
+    const loggedInName = matchedUser.name;
 
     setCurrentUser({
       name: loggedInName,
@@ -176,7 +173,7 @@ export default function LoginPage() {
     router.push('/admin');
   };
 
-  // Strict Company Submit
+  // Strict Company Submit (Only Registered Users Allowed)
   const handleCompanySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSignUpSuccessMsg(null);
@@ -233,7 +230,7 @@ export default function LoginPage() {
       return;
     }
 
-    // SIGN IN (STRICT)
+    // SIGN IN (STRICT - NO DEFAULT FALLBACKS)
     const inputEmail = companySignIn.email.trim().toLowerCase();
     const inputPassword = companySignIn.password;
 
@@ -250,21 +247,18 @@ export default function LoginPage() {
       (c) => c.email.toLowerCase() === inputEmail
     );
 
-    const isDefaultCompany = inputEmail === 'hr@ltconst.com' && inputPassword === 'company123';
-    const isPasswordCorrect = matchedUser ? matchedUser.password === inputPassword : false;
-
-    if (!matchedUser && !matchedCompany && !isDefaultCompany) {
-      setErrorMessage('Invalid Email or Password. No company account found with this email.');
+    if (!matchedUser) {
+      setErrorMessage('No corporate account found with this email. Please click Sign Up to register your company.');
       addToast({
         title: 'Access Denied',
-        description: 'Invalid credentials. Check your email or Sign Up.',
+        description: 'Unregistered company email.',
         variant: 'destructive',
       });
       return;
     }
 
-    if (!isDefaultCompany && !isPasswordCorrect) {
-      setErrorMessage('Incorrect password for this company account. Please try again.');
+    if (matchedUser.password !== inputPassword) {
+      setErrorMessage('Incorrect password for this corporate account. Please try again.');
       addToast({
         title: 'Access Denied',
         description: 'Incorrect password.',
@@ -277,8 +271,8 @@ export default function LoginPage() {
       setCurrentCompanyId(matchedCompany.id);
     }
 
-    const loggedInName = matchedUser?.name || matchedCompany?.contactPerson || 'Corporate Client';
-    const companyName = matchedUser?.companyName || matchedCompany?.companyName;
+    const loggedInName = matchedUser.name;
+    const companyName = matchedUser.companyName || matchedCompany?.companyName;
 
     setCurrentUser({
       name: loggedInName,
