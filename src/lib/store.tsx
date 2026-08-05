@@ -32,6 +32,7 @@ export interface ToastMessage {
 export interface UserProfile {
   name: string;
   email: string;
+  password?: string;
   role: UserRole;
   companyName?: string;
 }
@@ -124,8 +125,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
 
   const [registeredUsers, setRegisteredUsers] = useState<UserProfile[]>([
-    { name: 'Central Administrator', email: 'admin@labordesk.in', role: 'admin' },
-    { name: 'Vikrant Deshmukh', email: 'hr@ltconst.com', role: 'company', companyName: 'L&T Infrastructure Construtec Ltd' },
+    { name: 'Central Administrator', email: 'admin@labordesk.in', password: 'admin123', role: 'admin' },
+    { name: 'Vikrant Deshmukh', email: 'hr@ltconst.com', password: 'company123', role: 'company', companyName: 'L&T Infrastructure Construtec Ltd' },
   ]);
 
   const [industries, setIndustries] = useState<string[]>(DEFAULT_INDUSTRIES);
