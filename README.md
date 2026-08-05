@@ -10,6 +10,7 @@
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38BDF8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Docker](https://img.shields.io/badge/Docker-24.0-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 [![Deployment Status](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel)](https://labor-desk.vercel.app)
 
 ---
@@ -51,27 +52,44 @@
 
 ---
 
-## 🛠️ Technology Architecture
+## 🛠️ Tech Stack & DevOps Infrastructure
 
-| Layer | Technology Used |
-| :--- | :--- |
-| **Framework** | [Next.js 15.1 (App Router)](https://nextjs.org/) |
-| **UI Library** | [React 19](https://react.dev/) |
-| **Language** | [TypeScript 5 (Strict Null Checking)](https://www.typescriptlang.org/) |
-| **Styling** | [Tailwind CSS v3](https://tailwindcss.com/) with Vanilla CSS custom utilities |
-| **Iconography** | [Lucide React](https://lucide.dev/) |
-| **Analytics Charts** | [Recharts](https://recharts.org/) |
-| **Deployment** | [Vercel Edge Network](https://vercel.com/) |
+| Domain | Technology / Tool Used | Purpose & Feature |
+| :--- | :--- | :--- |
+| **Frontend Core** | [Next.js 15.1 (App Router)](https://nextjs.org/) & [React 19](https://react.dev/) | Server-Side Rendering (SSR) & Dynamic Route Optimization |
+| **Language** | [TypeScript 5](https://www.typescriptlang.org/) | Strict Type safety (`tsc --noEmit`) & Interface definitions |
+| **Styling** | [Tailwind CSS v3](https://tailwindcss.com/) & Vanilla CSS | Responsive design tokens & Dark/Light mode theme engine |
+| **CI / CD Pipeline** | [Vercel Deployment Automation](https://vercel.com/) | Continuous integration, automatic previews & edge builds on `git push` |
+| **Containerization** | [Docker](https://www.docker.com/) | Multi-stage production `Dockerfile` for Kubernetes / ECS deployment |
+| **Quality & Linting** | [ESLint 9](https://eslint.org/) | Code quality auditing & standard formatting verification |
+| **Iconography & Charts** | [Lucide React](https://lucide.dev/) & [Recharts](https://recharts.org/) | Modern icons & enterprise analytics visualizers |
+| **Hosting & Edge** | [Vercel Edge Network](https://vercel.com/) | Global CDN delivery, DNS management, SSL certification |
 
 ---
 
-## 🚀 Getting Started & Deployment
+## 🐳 DevOps & Docker Deployment
+
+LaborDesk includes a multi-stage production **`Dockerfile`** optimized for low-footprint container runtime.
+
+### 1. Build Docker Container Image
+```bash
+docker build -t labordesk:latest .
+```
+
+### 2. Run Container Locally
+```bash
+docker run -p 3000:3000 labordesk:latest
+```
+
+---
+
+## 🚀 Local Development Setup
 
 ### 1. Live Web Application
 Access the production application live on Vercel:
 👉 **[https://labor-desk.vercel.app](https://labor-desk.vercel.app)**
 
-### 2. Local Setup & Installation
+### 2. Clone & Run Locally
 ```bash
 # Clone the repository
 git clone https://github.com/Karthik18999/LaborDesk.git
@@ -85,8 +103,6 @@ npm install
 # Start local server
 npm run dev
 ```
-
-Open **[https://labor-desk.vercel.app](https://labor-desk.vercel.app)** (or `http://localhost:3000`) to view the application.
 
 ---
 
@@ -109,6 +125,8 @@ LaborDesk/
 │       ├── store.tsx        # AppContext state manager & auth store
 │       ├── mockData.ts      # Initial mock dataset (workers, companies)
 │       └── types.ts         # TypeScript definitions & schemas
+├── Dockerfile               # Multi-stage production Docker image definition
+├── .dockerignore            # Container build exclusions
 ├── public/                  # Static assets & brand assets
 ├── package.json
 └── README.md
