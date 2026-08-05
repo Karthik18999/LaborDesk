@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApp } from '@/lib/store';
-import { Shield, Building2, Lock, Mail, ArrowRight, KeyRound, User, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Shield, Building2, Lock, Mail, ArrowRight, KeyRound, User, CheckCircle2, AlertCircle, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -66,6 +66,21 @@ export default function LoginPage() {
 
   const [showCustomIndustryInput, setShowCustomIndustryInput] = useState(false);
 
+  // Helper: Password Strength Evaluation
+  const evaluatePasswordStrength = (pass: string) => {
+    if (!pass) return { score: 0, label: '', color: '', barWidth: '0%' };
+    let score = 0;
+    if (pass.length >= 6) score += 1;
+    if (pass.length >= 10) score += 1;
+    if (/[A-Z]/.test(pass)) score += 1;
+    if (/[0-9]/.test(pass)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1;
+
+    if (score <= 2) return { score: 1, label: 'Weak', color: 'bg-rose-500 text-rose-600', barWidth: '33%' };
+    if (score <= 4) return { score: 2, label: 'Medium', color: 'bg-amber-500 text-amber-600', barWidth: '66%' };
+    return { score: 3, label: 'Strong', color: 'bg-emerald-500 text-emerald-600', barWidth: '100%' };
+  };
+
   // Strict Admin Submit
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,8 +93,8 @@ export default function LoginPage() {
         setErrorMessage('Passwords do not match. Please re-enter your password.');
         return;
       }
-      if (adminSignUp.password.length < 4) {
-        setErrorMessage('Password must be at least 4 characters long.');
+      if (adminSignUp.password.length < 6) {
+        setErrorMessage('Password must be at least 6 characters long.');
         return;
       }
 
@@ -117,12 +132,11 @@ export default function LoginPage() {
       return;
     }
 
-    // Lookup user in registered memory or default demo
     const matchedUser = registeredUsers.find(
       (u) => u.role === 'admin' && u.email.toLowerCase() === inputEmail
     );
 
-    const isDefaultAdmin = inputEmail === 'admin@labordesk.in' && (inputPassword === 'admin123' || inputPassword === '••••••••');
+    const isDefaultAdmin = inputEmail === 'admin@labordesk.in' && inputPassword === 'admin123';
     const isPasswordCorrect = matchedUser ? matchedUser.password === inputPassword : false;
 
     if (!matchedUser && !isDefaultAdmin) {
@@ -145,7 +159,6 @@ export default function LoginPage() {
       return;
     }
 
-    // Authenticated
     const loggedInName = matchedUser?.name || 'Central Administrator';
 
     setCurrentUser({
@@ -171,8 +184,8 @@ export default function LoginPage() {
 
     // SIGN UP
     if (authMode === 'signup') {
-      if (companySignUp.password.length < 4) {
-        setErrorMessage('Password must be at least 4 characters long.');
+      if (companySignUp.password.length < 6) {
+        setErrorMessage('Password must be at least 6 characters long.');
         return;
       }
 
@@ -237,7 +250,7 @@ export default function LoginPage() {
       (c) => c.email.toLowerCase() === inputEmail
     );
 
-    const isDefaultCompany = inputEmail === 'hr@ltconst.com' && (inputPassword === 'company123' || inputPassword === '••••••••');
+    const isDefaultCompany = inputEmail === 'hr@ltconst.com' && inputPassword === 'company123';
     const isPasswordCorrect = matchedUser ? matchedUser.password === inputPassword : false;
 
     if (!matchedUser && !matchedCompany && !isDefaultCompany) {
@@ -282,6 +295,12 @@ export default function LoginPage() {
     });
     router.push('/company');
   };
+
+  const activePassword = authMode === 'signup' 
+    ? (activeTab === 'company' ? companySignUp.password : adminSignUp.password)
+    : (activeTab === 'company' ? companySignIn.password : adminSignIn.password);
+
+  const pwdStrength = evaluatePasswordStrength(activePassword);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -395,16 +414,6 @@ export default function LoginPage() {
                 <p className="font-bold text-emerald-900 dark:text-emerald-300">Registration Complete!</p>
                 <p className="text-[11px] mt-0.5 text-emerald-700 dark:text-emerald-300">{signUpSuccessMsg}</p>
               </div>
-            </div>
-          )}
-
-          {/* Quick Demo Helper Hint */}
-          {authMode === 'signin' && (
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-              <span>Demo Login:</span>
-              <span className="font-mono font-bold text-brand-600 dark:text-brand-400">
-                {activeTab === 'admin' ? 'admin@labordesk.in / admin123' : 'hr@ltconst.com / company123'}
-              </span>
             </div>
           )}
 
@@ -561,6 +570,25 @@ export default function LoginPage() {
                 </div>
               )}
 
+              {/* Password Strength Indicator */}
+              {activePassword.length > 0 && (
+                <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                  <div className="flex items-center justify-between text-[11px] font-semibold">
+                    <span className="text-slate-500">Password Strength:</span>
+                    <span className={`font-bold ${pwdStrength.color}`}>{pwdStrength.label}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-300 ${pwdStrength.color.split(' ')[0]}`}
+                      style={{ width: pwdStrength.barWidth }}
+                    ></div>
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    Use 8+ characters with uppercase letters, numbers & special symbols.
+                  </p>
+                </div>
+              )}
+
               <button
                 type="submit"
                 className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4"
@@ -683,6 +711,25 @@ export default function LoginPage() {
                       />
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Password Strength Indicator */}
+              {activePassword.length > 0 && (
+                <div className="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800">
+                  <div className="flex items-center justify-between text-[11px] font-semibold">
+                    <span className="text-slate-500">Password Strength:</span>
+                    <span className={`font-bold ${pwdStrength.color}`}>{pwdStrength.label}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-300 ${pwdStrength.color.split(' ')[0]}`}
+                      style={{ width: pwdStrength.barWidth }}
+                    ></div>
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    Use 8+ characters with uppercase letters, numbers & special symbols.
+                  </p>
                 </div>
               )}
 
