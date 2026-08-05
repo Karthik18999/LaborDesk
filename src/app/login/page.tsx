@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import { useApp } from '@/lib/store';
 import { Shield, Building2, Lock, Mail, ArrowRight, KeyRound, User, CheckCircle2, AlertCircle } from 'lucide-react';
