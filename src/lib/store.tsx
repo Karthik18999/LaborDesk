@@ -29,6 +29,13 @@ export interface ToastMessage {
   variant?: 'default' | 'success' | 'warning' | 'destructive';
 }
 
+export interface UserProfile {
+  name: string;
+  email: string;
+  role: UserRole;
+  companyName?: string;
+}
+
 const DEFAULT_INDUSTRIES = [
   'Construction & Civil Works',
   'Logistics & Warehousing',
@@ -44,11 +51,17 @@ interface AppContextType {
   isDarkMode: boolean;
   toggleTheme: () => void;
 
-  // Auth / Role
+  // Auth / Role / User Profile
   role: UserRole | 'guest';
   setRole: (role: UserRole | 'guest') => void;
+  currentUser: UserProfile | null;
+  setCurrentUser: (user: UserProfile | null) => void;
   currentCompany: Company | null;
   setCurrentCompanyId: (id: string) => void;
+
+  // Registered Auth Accounts (Sign Up Memory)
+  registeredUsers: UserProfile[];
+  addRegisteredUser: (user: UserProfile) => void;
 
   // Dynamic Industries
   industries: string[];
@@ -104,6 +117,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<UserRole | 'guest'>('guest');
   const [currentCompanyId, setCurrentCompanyId] = useState<string>('CMP-2001');
 
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
+    name: 'Central Administrator',
+    email: 'admin@labordesk.in',
+    role: 'admin',
+  });
+
+  const [registeredUsers, setRegisteredUsers] = useState<UserProfile[]>([
+    { name: 'Central Administrator', email: 'admin@labordesk.in', role: 'admin' },
+    { name: 'Vikrant Deshmukh', email: 'hr@ltconst.com', role: 'company', companyName: 'L&T Infrastructure Construtec Ltd' },
+  ]);
+
   const [industries, setIndustries] = useState<string[]>(DEFAULT_INDUSTRIES);
 
   const [workers, setWorkers] = useState<Worker[]>(INITIAL_WORKERS);
@@ -136,6 +160,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const addRegisteredUser = (user: UserProfile) => {
+    setRegisteredUsers((prev) => [...prev, user]);
   };
 
   const addIndustry = (industryName: string) => {
@@ -206,26 +234,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (newCompany.industry && !industries.includes(newCompany.industry)) {
       setIndustries((prev) => [...prev, newCompany.industry]);
     }
-
-    // Send admin notification
-    setNotifications((prev) => [
-      {
-        id: `NOTIF-${Date.now()}`,
-        title: 'New Company Registered',
-        message: `${newCompany.companyName} submitted GST registration under ${newCompany.industry}.`,
-        recipientRole: 'admin',
-        timestamp: 'Just now',
-        read: false,
-        type: 'info',
-      },
-      ...prev,
-    ]);
-
-    addToast({
-      title: 'Registration Received',
-      description: `Welcome to Labor Desk, ${newCompany.companyName}! Your registration is active.`,
-      variant: 'success',
-    });
   };
 
   const updateCompanyStatus = (id: string, status: CompanyStatus) => {
@@ -379,8 +387,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         toggleTheme,
         role,
         setRole,
+        currentUser,
+        setCurrentUser,
         currentCompany,
         setCurrentCompanyId,
+        registeredUsers,
+        addRegisteredUser,
         industries,
         addIndustry,
         workers,

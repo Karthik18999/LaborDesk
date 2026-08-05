@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { useApp } from '@/lib/store';
-import { Shield, Building2, Lock, Mail, ArrowRight, UserCheck, KeyRound, Building, Phone, User, Plus } from 'lucide-react';
+import { Shield, Building2, Lock, Mail, ArrowRight, KeyRound, User, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const { setRole, addToast, addCompany, industries, addIndustry } = useApp();
+  const { setRole, addToast, addCompany, industries, addIndustry, registeredUsers, addRegisteredUser, setCurrentUser, setCurrentCompanyId, companies } = useApp();
   const router = useRouter();
 
   // Active Tab: 'admin' | 'company'
@@ -15,6 +15,9 @@ export default function LoginPage() {
   
   // Auth Mode: 'signin' | 'signup'
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+
+  // Success Banner after Sign Up
+  const [signUpSuccessMsg, setSignUpSuccessMsg] = useState<string | null>(null);
 
   // Form State - Admin Sign In
   const [adminSignIn, setAdminSignIn] = useState({
@@ -51,9 +54,11 @@ export default function LoginPage() {
 
   const [showCustomIndustryInput, setShowCustomIndustryInput] = useState(false);
 
-  // Handle Admin Submit
+  // Handle Admin Sign In / Sign Up
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSignUpSuccessMsg(null);
+
     if (authMode === 'signup') {
       if (adminSignUp.password !== adminSignUp.confirmPassword) {
         addToast({
@@ -63,26 +68,54 @@ export default function LoginPage() {
         });
         return;
       }
+
+      // Register new Admin user
+      addRegisteredUser({
+        name: adminSignUp.fullName,
+        email: adminSignUp.email,
+        role: 'admin',
+      });
+
+      // Show success message and require signing in
+      setSignUpSuccessMsg(`Account created for ${adminSignUp.fullName}! Please sign in below using your email & password.`);
+      setAdminSignIn({ email: adminSignUp.email, password: '' });
+      setAuthMode('signin');
+
       addToast({
-        title: 'Admin Account Created',
-        description: `Welcome ${adminSignUp.fullName}! Your administrator access is active.`,
+        title: 'Admin Account Registered',
+        description: 'Please sign in with your new credentials.',
         variant: 'success',
       });
-    } else {
-      addToast({
-        title: 'Admin Authentication Successful',
-        description: 'Logged into Central Admin Console.',
-        variant: 'success',
-      });
+      return;
     }
 
+    // SIGN IN FLOW
+    const matchedUser = registeredUsers.find(
+      (u) => u.role === 'admin' && u.email.toLowerCase() === adminSignIn.email.toLowerCase()
+    );
+
+    const loggedInName = matchedUser?.name || (adminSignIn.email.includes('admin') ? 'Central Administrator' : adminSignIn.email.split('@')[0]);
+
+    setCurrentUser({
+      name: loggedInName,
+      email: adminSignIn.email,
+      role: 'admin',
+    });
+
     setRole('admin');
+    addToast({
+      title: `Welcome, ${loggedInName}!`,
+      description: 'Logged into Central Admin Operations Console.',
+      variant: 'success',
+    });
     router.push('/admin');
   };
 
-  // Handle Company Submit
+  // Handle Company Sign In / Sign Up
   const handleCompanySubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSignUpSuccessMsg(null);
+
     if (authMode === 'signup') {
       let finalIndustry = companySignUp.industry;
       if (showCustomIndustryInput && companySignUp.customIndustry.trim()) {
@@ -90,6 +123,7 @@ export default function LoginPage() {
         addIndustry(finalIndustry);
       }
 
+      // Add Company to registry
       addCompany({
         companyName: companySignUp.companyName,
         gstNumber: companySignUp.gstNumber,
@@ -101,21 +135,63 @@ export default function LoginPage() {
         subscriptionPlan: 'Pro',
         status: 'Active',
       });
-    } else {
+
+      // Add Registered User Profile
+      addRegisteredUser({
+        name: companySignUp.contactPerson,
+        email: companySignUp.email,
+        role: 'company',
+        companyName: companySignUp.companyName,
+      });
+
+      // Show success message and require signing in with credentials
+      setSignUpSuccessMsg(`Registration successful for ${companySignUp.companyName}! Please sign in below with your credentials.`);
+      setCompanySignIn({ email: companySignUp.email, password: '' });
+      setAuthMode('signin');
+
       addToast({
-        title: 'Company Authentication Successful',
-        description: 'Logged into Corporate Client Portal.',
+        title: 'Company Registration Completed',
+        description: 'Please sign in with your email & password.',
         variant: 'success',
       });
+      return;
     }
 
+    // SIGN IN FLOW
+    const matchedUser = registeredUsers.find(
+      (u) => u.role === 'company' && u.email.toLowerCase() === companySignIn.email.toLowerCase()
+    );
+
+    const matchedCompany = companies.find(
+      (c) => c.email.toLowerCase() === companySignIn.email.toLowerCase()
+    );
+
+    if (matchedCompany) {
+      setCurrentCompanyId(matchedCompany.id);
+    }
+
+    const loggedInName = matchedUser?.name || matchedCompany?.contactPerson || companySignIn.email.split('@')[0];
+    const companyName = matchedUser?.companyName || matchedCompany?.companyName;
+
+    setCurrentUser({
+      name: loggedInName,
+      email: companySignIn.email,
+      role: 'company',
+      companyName: companyName,
+    });
+
     setRole('company');
+    addToast({
+      title: `Welcome, ${loggedInName}!`,
+      description: 'Logged into Corporate Client Portal.',
+      variant: 'success',
+    });
     router.push('/company');
   };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Subtle Background Pattern */}
+      {/* Background Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:36px_36px] pointer-events-none"></div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 space-y-3 text-center">
@@ -139,6 +215,7 @@ export default function LoginPage() {
             <button
               onClick={() => {
                 setActiveTab('company');
+                setSignUpSuccessMsg(null);
               }}
               className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'company'
@@ -152,6 +229,7 @@ export default function LoginPage() {
             <button
               onClick={() => {
                 setActiveTab('admin');
+                setSignUpSuccessMsg(null);
               }}
               className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'admin'
@@ -168,7 +246,10 @@ export default function LoginPage() {
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
             <div className="flex gap-4">
               <button
-                onClick={() => setAuthMode('signin')}
+                onClick={() => {
+                  setAuthMode('signin');
+                  setSignUpSuccessMsg(null);
+                }}
                 className={`text-xs font-bold pb-1 transition-all ${
                   authMode === 'signin'
                     ? 'text-brand-600 dark:text-brand-400 border-b-2 border-brand-600 dark:border-brand-400'
@@ -178,7 +259,10 @@ export default function LoginPage() {
                 Sign In
               </button>
               <button
-                onClick={() => setAuthMode('signup')}
+                onClick={() => {
+                  setAuthMode('signup');
+                  setSignUpSuccessMsg(null);
+                }}
                 className={`text-xs font-bold pb-1 transition-all ${
                   authMode === 'signup'
                     ? 'text-brand-600 dark:text-brand-400 border-b-2 border-brand-600 dark:border-brand-400'
@@ -193,6 +277,17 @@ export default function LoginPage() {
               {activeTab} • {authMode}
             </span>
           </div>
+
+          {/* Sign Up Success Alert */}
+          {signUpSuccessMsg && (
+            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 text-xs flex items-start gap-2.5 font-medium">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-emerald-900 dark:text-emerald-300">Registration Complete!</p>
+                <p className="text-[11px] mt-0.5 text-emerald-700 dark:text-emerald-300">{signUpSuccessMsg}</p>
+              </div>
+            </div>
+          )}
 
           {/* ================= COMPANY PORTAL FORM ================= */}
           {activeTab === 'company' && (
