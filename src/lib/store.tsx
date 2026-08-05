@@ -29,6 +29,16 @@ export interface ToastMessage {
   variant?: 'default' | 'success' | 'warning' | 'destructive';
 }
 
+const DEFAULT_INDUSTRIES = [
+  'Construction & Civil Works',
+  'Logistics & Warehousing',
+  'Heavy Manufacturing & Mills',
+  'Renewable Energy',
+  'Infrastructure & EPC',
+  'Metal Fabrication & Welding Yards',
+  'E-Commerce Fulfillment Centers',
+];
+
 interface AppContextType {
   // Theme
   isDarkMode: boolean;
@@ -39,6 +49,10 @@ interface AppContextType {
   setRole: (role: UserRole | 'guest') => void;
   currentCompany: Company | null;
   setCurrentCompanyId: (id: string) => void;
+
+  // Dynamic Industries
+  industries: string[];
+  addIndustry: (industryName: string) => void;
 
   // Data Collections
   workers: Worker[];
@@ -90,6 +104,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<UserRole | 'guest'>('guest');
   const [currentCompanyId, setCurrentCompanyId] = useState<string>('CMP-2001');
 
+  const [industries, setIndustries] = useState<string[]>(DEFAULT_INDUSTRIES);
+
   const [workers, setWorkers] = useState<Worker[]>(INITIAL_WORKERS);
   const [companies, setCompanies] = useState<Company[]>(INITIAL_COMPANIES);
   const [requests, setRequests] = useState<WorkerRequest[]>(INITIAL_REQUESTS);
@@ -100,7 +116,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  // Dark Mode toggle
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -121,6 +136,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const addIndustry = (industryName: string) => {
+    const trimmed = industryName.trim();
+    if (!trimmed || industries.includes(trimmed)) return;
+    setIndustries((prev) => [...prev, trimmed]);
+    addToast({
+      title: 'New Industry Added',
+      description: `'${trimmed}' is now available across registration forms & dashboards.`,
+      variant: 'success',
+    });
   };
 
   const addWorker = (newWorkerData: Omit<Worker, 'id' | 'registeredAt'>) => {
@@ -176,12 +202,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
     setCompanies((prev) => [newCompany, ...prev]);
 
+    // Ensure industry is added if new
+    if (newCompany.industry && !industries.includes(newCompany.industry)) {
+      setIndustries((prev) => [...prev, newCompany.industry]);
+    }
+
     // Send admin notification
     setNotifications((prev) => [
       {
         id: `NOTIF-${Date.now()}`,
         title: 'New Company Registered',
-        message: `${newCompany.companyName} submitted GST registration for verification.`,
+        message: `${newCompany.companyName} submitted GST registration under ${newCompany.industry}.`,
         recipientRole: 'admin',
         timestamp: 'Just now',
         read: false,
@@ -192,7 +223,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     addToast({
       title: 'Registration Received',
-      description: `Welcome to Labor Desk, ${newCompany.companyName}! Your registration is pending admin approval.`,
+      description: `Welcome to Labor Desk, ${newCompany.companyName}! Your registration is active.`,
       variant: 'success',
     });
   };
@@ -350,6 +381,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setRole,
         currentCompany,
         setCurrentCompanyId,
+        industries,
+        addIndustry,
         workers,
         companies,
         requests,

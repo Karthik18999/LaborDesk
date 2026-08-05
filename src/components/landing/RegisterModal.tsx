@@ -2,17 +2,18 @@
 
 import React, { useState } from 'react';
 import { useApp } from '@/lib/store';
-import { X, Building2, CheckCircle2 } from 'lucide-react';
+import { X, Building2, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { addCompany, setRole, setCurrentCompanyId } = useApp();
+  const { industries, addCompany, setRole, addIndustry } = useApp();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
     companyName: '',
     gstNumber: '',
-    industry: 'Construction & Civil Works',
+    industry: industries[0] || 'Construction & Civil Works',
+    customIndustry: '',
     officeAddress: '',
     contactPerson: '',
     phone: '',
@@ -20,14 +21,30 @@ export default function RegisterModal({ isOpen, onClose }: { isOpen: boolean; on
     subscriptionPlan: 'Pro' as 'Basic' | 'Pro' | 'Enterprise',
   });
 
+  const [showCustomInput, setShowCustomInput] = useState(false);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    let finalIndustry = formData.industry;
+    if (showCustomInput && formData.customIndustry.trim()) {
+      finalIndustry = formData.customIndustry.trim();
+      addIndustry(finalIndustry);
+    }
+
     addCompany({
-      ...formData,
+      companyName: formData.companyName,
+      gstNumber: formData.gstNumber,
+      industry: finalIndustry,
+      officeAddress: formData.officeAddress,
+      contactPerson: formData.contactPerson,
+      phone: formData.phone,
+      email: formData.email,
+      subscriptionPlan: formData.subscriptionPlan,
       status: 'Active',
     });
+
     setRole('company');
     onClose();
     router.push('/company');
@@ -80,18 +97,47 @@ export default function RegisterModal({ isOpen, onClose }: { isOpen: boolean; on
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Industry</label>
-              <select
-                value={formData.industry}
-                onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
-              >
-                <option>Construction & Civil Works</option>
-                <option>Logistics & Warehousing</option>
-                <option>Heavy Manufacturing</option>
-                <option>Renewable Energy</option>
-                <option>Infrastructure & EPC</option>
-              </select>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Industry Sector</label>
+              {!showCustomInput ? (
+                <div className="space-y-1">
+                  <select
+                    value={formData.industry}
+                    onChange={(e) => {
+                      if (e.target.value === 'ADD_NEW') {
+                        setShowCustomInput(true);
+                      } else {
+                        setFormData({ ...formData, industry: e.target.value });
+                      }
+                    }}
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40 font-medium"
+                  >
+                    {industries.map((ind) => (
+                      <option key={ind} value={ind}>
+                        {ind}
+                      </option>
+                    ))}
+                    <option value="ADD_NEW">+ Add New Custom Industry...</option>
+                  </select>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    required
+                    type="text"
+                    value={formData.customIndustry}
+                    onChange={(e) => setFormData({ ...formData, customIndustry: e.target.value })}
+                    placeholder="Enter Custom Industry"
+                    className="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-brand-500 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomInput(false)}
+                    className="px-2.5 py-2 text-[10px] font-bold bg-slate-200 dark:bg-slate-700 rounded-xl"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
