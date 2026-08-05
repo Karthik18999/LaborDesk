@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Mail, Phone, MapPin, Building2, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function Contact() {
   return (
@@ -21,15 +21,15 @@ export default function Contact() {
 
         {/* Contact Info Grid */}
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Card 1: Office Address */}
+          {/* Card 1: Bangalore Office Address */}
           <div className="p-8 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-lg transition-all space-y-4 text-center sm:text-left">
             <div className="w-12 h-12 rounded-2xl bg-brand-600/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0 mx-auto sm:mx-0">
               <MapPin className="w-6 h-6" />
             </div>
             <div>
               <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">Central Admin Hub Office</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Tower B, 7th Floor, Cyber Park, Sector 62, Noida, Uttar Pradesh - 201309
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                7th Floor, Prestige Trade Tower, Palace Road, High Grounds, Bengaluru, Karnataka - 560001
               </p>
             </div>
           </div>
@@ -42,10 +42,10 @@ export default function Contact() {
             <div>
               <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">Helpline & Registration</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
-                +91 120 4567 890
+                +91 80 4567 8900
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
-                +91 98100 12345
+                +91 98800 12345
               </p>
             </div>
           </div>
