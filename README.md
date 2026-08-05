@@ -51,15 +51,6 @@
 
 ---
 
-## 🏢 Central Hub Office Locations
-
-| Office Type | Address & Location | Contact Information |
-| :--- | :--- | :--- |
-| 📍 **Bengaluru Corporate Hub** | **7th Floor, Prestige Trade Tower**, Palace Road, High Grounds, Bengaluru, Karnataka - 560001 | 📞 **Helpline:** +91 80 4567 8900<br>📱 **Mobile:** +91 98800 12345 |
-| 🏢 **Central Admin Hub** | **Tower B, 7th Floor, Cyber Park**, Sector 62, Noida, Uttar Pradesh - 201309 | ✉️ **Email:** `support@labordesk.in` |
-
----
-
 ## 🛠️ Technology Architecture
 
 | Layer | Technology Used |
@@ -74,13 +65,13 @@
 
 ---
 
-## 🚀 Getting Started (Local Development)
+## 🚀 Getting Started & Deployment
 
-### 1. Prerequisites
-- **Node.js**: `v18.0.0` or higher
-- **npm**: `v9.0.0` or higher
+### 1. Live Web Application
+Access the production application live on Vercel:
+👉 **[https://labor-desk.vercel.app](https://labor-desk.vercel.app)**
 
-### 2. Installation & Setup
+### 2. Local Setup & Installation
 ```bash
 # Clone the repository
 git clone https://github.com/Karthik18999/LaborDesk.git
@@ -90,19 +81,12 @@ cd LaborDesk
 
 # Install dependencies
 npm install
-```
 
-### 3. Run Development Server
-```bash
+# Start local server
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the platform.
 
-### 4. Build for Production
-```bash
-npm run build
-npm run start
-```
+Open **[https://labor-desk.vercel.app](https://labor-desk.vercel.app)** (or `http://localhost:3000`) to view the application.
 
 ---
 
