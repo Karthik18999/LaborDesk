@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApp } from '@/lib/store';
-import { Shield, Building2, Lock, Mail, ArrowRight, KeyRound, User, CheckCircle2, AlertCircle, Check, X } from 'lucide-react';
+import { Shield, Building2, Lock, Mail, ArrowRight, KeyRound, User, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -31,7 +31,7 @@ export default function LoginPage() {
   const [signUpSuccessMsg, setSignUpSuccessMsg] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Form State - Admin Sign In
+  // Form State - Admin Sign In (100% EMPTY DEFAULT)
   const [adminSignIn, setAdminSignIn] = useState({
     email: '',
     password: '',
@@ -46,7 +46,7 @@ export default function LoginPage() {
     confirmPassword: '',
   });
 
-  // Form State - Company Sign In
+  // Form State - Company Sign In (100% EMPTY DEFAULT)
   const [companySignIn, setCompanySignIn] = useState({
     email: '',
     password: '',
@@ -419,7 +419,7 @@ export default function LoginPage() {
 
           {/* ================= COMPANY PORTAL FORM ================= */}
           {activeTab === 'company' && (
-            <form onSubmit={handleCompanySubmit} className="space-y-4">
+            <form onSubmit={handleCompanySubmit} className="space-y-4" autoComplete="off">
               {authMode === 'signin' ? (
                 <>
                   <div>
@@ -429,9 +429,10 @@ export default function LoginPage() {
                       <input
                         required
                         type="email"
+                        autoComplete="off"
                         value={companySignIn.email}
                         onChange={(e) => setCompanySignIn({ ...companySignIn, email: e.target.value })}
-                        placeholder="hr@company.com"
+                        placeholder="Enter company work email..."
                         className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                       />
                     </div>
@@ -449,9 +450,10 @@ export default function LoginPage() {
                       <input
                         required
                         type="password"
+                        autoComplete="new-password"
                         value={companySignIn.password}
                         onChange={(e) => setCompanySignIn({ ...companySignIn, password: e.target.value })}
-                        placeholder="Enter password"
+                        placeholder="Enter password..."
                         className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                       />
                     </div>
@@ -561,9 +563,10 @@ export default function LoginPage() {
                     <input
                       required
                       type="password"
+                      autoComplete="new-password"
                       value={companySignUp.password}
                       onChange={(e) => setCompanySignUp({ ...companySignUp, password: e.target.value })}
-                      placeholder="Enter password"
+                      placeholder="Enter password..."
                       className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                     />
                   </div>
@@ -601,7 +604,7 @@ export default function LoginPage() {
 
           {/* ================= ADMIN PORTAL FORM ================= */}
           {activeTab === 'admin' && (
-            <form onSubmit={handleAdminSubmit} className="space-y-4">
+            <form onSubmit={handleAdminSubmit} className="space-y-4" autoComplete="off">
               {authMode === 'signin' ? (
                 <>
                   <div>
@@ -611,9 +614,10 @@ export default function LoginPage() {
                       <input
                         required
                         type="email"
+                        autoComplete="off"
                         value={adminSignIn.email}
                         onChange={(e) => setAdminSignIn({ ...adminSignIn, email: e.target.value })}
-                        placeholder="admin@labordesk.in"
+                        placeholder="Enter admin email address..."
                         className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                       />
                     </div>
@@ -631,9 +635,10 @@ export default function LoginPage() {
                       <input
                         required
                         type="password"
+                        autoComplete="new-password"
                         value={adminSignIn.password}
                         onChange={(e) => setAdminSignIn({ ...adminSignIn, password: e.target.value })}
-                        placeholder="Enter password"
+                        placeholder="Enter password..."
                         className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
                       />
                     </div>
@@ -693,9 +698,10 @@ export default function LoginPage() {
                       <input
                         required
                         type="password"
+                        autoComplete="new-password"
                         value={adminSignUp.password}
                         onChange={(e) => setAdminSignUp({ ...adminSignUp, password: e.target.value })}
-                        placeholder="Enter password"
+                        placeholder="Enter password..."
                         className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                       />
                     </div>
@@ -704,9 +710,10 @@ export default function LoginPage() {
                       <input
                         required
                         type="password"
+                        autoComplete="new-password"
                         value={adminSignUp.confirmPassword}
                         onChange={(e) => setAdminSignUp({ ...adminSignUp, confirmPassword: e.target.value })}
-                        placeholder="Confirm password"
+                        placeholder="Confirm password..."
                         className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
                       />
                     </div>
