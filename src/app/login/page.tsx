@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import React, { useState } from 'react';
 import { useApp } from '@/lib/store';
-import { Shield, Building2, Lock, Mail, ArrowRight, KeyRound, User, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Shield, Building2, Lock, Mail, ArrowRight, KeyRound, User, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -28,6 +28,9 @@ export default function LoginPage() {
   
   // Auth Mode: 'signin' | 'signup'
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+
+  // Show/Hide Password Toggle
+  const [showPassword, setShowPassword] = useState(false);
 
   // Banners
   const [signUpSuccessMsg, setSignUpSuccessMsg] = useState<string | null>(null);
@@ -83,7 +86,7 @@ export default function LoginPage() {
     return { score: 3, label: 'Strong', color: 'bg-emerald-500 text-emerald-600', barWidth: '100%' };
   };
 
-  // Strict Admin Submit (Only Registered Users Allowed)
+  // Strict Admin Submit
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSignUpSuccessMsg(null);
@@ -175,7 +178,7 @@ export default function LoginPage() {
     router.push('/admin');
   };
 
-  // Strict Company Submit (Only Registered Users Allowed)
+  // Strict Company Submit
   const handleCompanySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSignUpSuccessMsg(null);
@@ -416,10 +419,6 @@ export default function LoginPage() {
           {/* ================= COMPANY PORTAL FORM ================= */}
           {activeTab === 'company' && (
             <form onSubmit={handleCompanySubmit} className="space-y-4" autoComplete="off">
-              {/* Decoy inputs to neutralize browser password autofill */}
-              <input type="text" name="decoy_email_company" style={{ display: 'none' }} tabIndex={-1} />
-              <input type="password" name="decoy_pass_company" style={{ display: 'none' }} tabIndex={-1} />
-
               {authMode === 'signin' ? (
                 <>
                   <div>
@@ -428,8 +427,8 @@ export default function LoginPage() {
                       <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                       <input
                         required
-                        type="email"
-                        name="company_work_email_input"
+                        type="text"
+                        name="ld_company_email_field"
                         autoComplete="off"
                         value={companySignIn.email}
                         onChange={(e) => setCompanySignIn({ ...companySignIn, email: e.target.value })}
@@ -450,14 +449,22 @@ export default function LoginPage() {
                       <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                       <input
                         required
-                        type="password"
-                        name="company_work_password_input"
-                        autoComplete="new-password"
+                        type="text"
+                        name="ld_company_password_field"
+                        autoComplete="off"
                         value={companySignIn.password}
                         onChange={(e) => setCompanySignIn({ ...companySignIn, password: e.target.value })}
                         placeholder="Enter password..."
-                        className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                        style={{ WebkitTextSecurity: showPassword ? 'none' : 'disc' } as React.CSSProperties}
+                        className="w-full pl-10 pr-10 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40 font-mono"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
                     </div>
                   </div>
                 </>
@@ -564,12 +571,14 @@ export default function LoginPage() {
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Create Password</label>
                     <input
                       required
-                      type="password"
-                      autoComplete="new-password"
+                      type="text"
+                      name="ld_company_signup_pass_field"
+                      autoComplete="off"
                       value={companySignUp.password}
                       onChange={(e) => setCompanySignUp({ ...companySignUp, password: e.target.value })}
                       placeholder="Enter password..."
-                      className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                      style={{ WebkitTextSecurity: showPassword ? 'none' : 'disc' } as React.CSSProperties}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono"
                     />
                   </div>
                 </div>
@@ -607,10 +616,6 @@ export default function LoginPage() {
           {/* ================= ADMIN PORTAL FORM ================= */}
           {activeTab === 'admin' && (
             <form onSubmit={handleAdminSubmit} className="space-y-4" autoComplete="off">
-              {/* Decoy inputs to neutralize browser password autofill */}
-              <input type="text" name="decoy_email_admin" style={{ display: 'none' }} tabIndex={-1} />
-              <input type="password" name="decoy_pass_admin" style={{ display: 'none' }} tabIndex={-1} />
-
               {authMode === 'signin' ? (
                 <>
                   <div>
@@ -619,8 +624,8 @@ export default function LoginPage() {
                       <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                       <input
                         required
-                        type="email"
-                        name="admin_user_email_input"
+                        type="text"
+                        name="ld_admin_email_field"
                         autoComplete="off"
                         value={adminSignIn.email}
                         onChange={(e) => setAdminSignIn({ ...adminSignIn, email: e.target.value })}
@@ -641,14 +646,22 @@ export default function LoginPage() {
                       <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                       <input
                         required
-                        type="password"
-                        name="admin_user_password_input"
-                        autoComplete="new-password"
+                        type="text"
+                        name="ld_admin_password_field"
+                        autoComplete="off"
                         value={adminSignIn.password}
                         onChange={(e) => setAdminSignIn({ ...adminSignIn, password: e.target.value })}
                         placeholder="Enter password..."
-                        className="w-full pl-10 pr-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+                        style={{ WebkitTextSecurity: showPassword ? 'none' : 'disc' } as React.CSSProperties}
+                        className="w-full pl-10 pr-10 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500/40 font-mono"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
                     </div>
                   </div>
                 </>
@@ -705,24 +718,28 @@ export default function LoginPage() {
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
                       <input
                         required
-                        type="password"
-                        autoComplete="new-password"
+                        type="text"
+                        name="ld_admin_signup_pass_field"
+                        autoComplete="off"
                         value={adminSignUp.password}
                         onChange={(e) => setAdminSignUp({ ...adminSignUp, password: e.target.value })}
                         placeholder="Enter password..."
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                        style={{ WebkitTextSecurity: showPassword ? 'none' : 'disc' } as React.CSSProperties}
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Confirm Password</label>
                       <input
                         required
-                        type="password"
-                        autoComplete="new-password"
+                        type="text"
+                        name="ld_admin_signup_confirm_pass_field"
+                        autoComplete="off"
                         value={adminSignUp.confirmPassword}
                         onChange={(e) => setAdminSignUp({ ...adminSignUp, confirmPassword: e.target.value })}
                         placeholder="Confirm password..."
-                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white"
+                        style={{ WebkitTextSecurity: showPassword ? 'none' : 'disc' } as React.CSSProperties}
+                        className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-mono"
                       />
                     </div>
                   </div>
