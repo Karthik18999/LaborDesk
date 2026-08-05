@@ -31,7 +31,7 @@ export default function LoginPage() {
   const [signUpSuccessMsg, setSignUpSuccessMsg] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Form State - Admin Sign In (100% EMPTY DEFAULT)
+  // Form State - Admin Sign In (Explicitly Empty Default)
   const [adminSignIn, setAdminSignIn] = useState({
     email: '',
     password: '',
@@ -46,7 +46,7 @@ export default function LoginPage() {
     confirmPassword: '',
   });
 
-  // Form State - Company Sign In (100% EMPTY DEFAULT)
+  // Form State - Company Sign In (Explicitly Empty Default)
   const [companySignIn, setCompanySignIn] = useState({
     email: '',
     password: '',
@@ -420,6 +420,10 @@ export default function LoginPage() {
           {/* ================= COMPANY PORTAL FORM ================= */}
           {activeTab === 'company' && (
             <form onSubmit={handleCompanySubmit} className="space-y-4" autoComplete="off">
+              {/* Decoy inputs to neutralize browser password autofill */}
+              <input type="text" name="decoy_email_company" style={{ display: 'none' }} tabIndex={-1} />
+              <input type="password" name="decoy_pass_company" style={{ display: 'none' }} tabIndex={-1} />
+
               {authMode === 'signin' ? (
                 <>
                   <div>
@@ -429,6 +433,7 @@ export default function LoginPage() {
                       <input
                         required
                         type="email"
+                        name="company_work_email_input"
                         autoComplete="off"
                         value={companySignIn.email}
                         onChange={(e) => setCompanySignIn({ ...companySignIn, email: e.target.value })}
@@ -450,6 +455,7 @@ export default function LoginPage() {
                       <input
                         required
                         type="password"
+                        name="company_work_password_input"
                         autoComplete="new-password"
                         value={companySignIn.password}
                         onChange={(e) => setCompanySignIn({ ...companySignIn, password: e.target.value })}
@@ -605,6 +611,10 @@ export default function LoginPage() {
           {/* ================= ADMIN PORTAL FORM ================= */}
           {activeTab === 'admin' && (
             <form onSubmit={handleAdminSubmit} className="space-y-4" autoComplete="off">
+              {/* Decoy inputs to neutralize browser password autofill */}
+              <input type="text" name="decoy_email_admin" style={{ display: 'none' }} tabIndex={-1} />
+              <input type="password" name="decoy_pass_admin" style={{ display: 'none' }} tabIndex={-1} />
+
               {authMode === 'signin' ? (
                 <>
                   <div>
@@ -614,6 +624,7 @@ export default function LoginPage() {
                       <input
                         required
                         type="email"
+                        name="admin_user_email_input"
                         autoComplete="off"
                         value={adminSignIn.email}
                         onChange={(e) => setAdminSignIn({ ...adminSignIn, email: e.target.value })}
@@ -635,6 +646,7 @@ export default function LoginPage() {
                       <input
                         required
                         type="password"
+                        name="admin_user_password_input"
                         autoComplete="new-password"
                         value={adminSignIn.password}
                         onChange={(e) => setAdminSignIn({ ...adminSignIn, password: e.target.value })}
