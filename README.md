@@ -11,8 +11,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![JWT Auth](https://img.shields.io/badge/JWT-HS256-000000?style=for-the-badge&logo=json-web-tokens)](https://jwt.io/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38BDF8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![Docker](https://img.shields.io/badge/Docker-24.0-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
-[![Deployment Status](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel)](https://labor-desk.vercel.app)
+[![Netlify Status](https://img.shields.io/badge/Netlify-Ready-00C7B7?style=for-the-badge&logo=netlify)](https://www.netlify.com/)
+[![Vercel Status](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel)](https://labor-desk.vercel.app)
 
 ---
 
@@ -48,12 +48,26 @@ LaborDesk/
 │   └── README.md                 # ERD diagram, Supabase setup & migration guide
 │
 ├── src/                          # Next.js App Router entry pages & route handlers
-│   └── lib/jwt.ts                # Next.js JWT helper exports
+├── netlify.toml                  # Netlify build plugin & deployment configuration
 ├── Dockerfile                    # Multi-stage production Docker container definition
-├── .dockerignore                 # Container build exclusions
 ├── package.json
 └── README.md
 ```
+
+---
+
+## 🌐 Netlify Deployment Guide
+
+LaborDesk includes a dedicated **`netlify.toml`** file pre-configured with `@netlify/plugin-nextjs` for 1-click Netlify deployment.
+
+### Deploying to Netlify via GitHub:
+1. Log in to [Netlify Dashboard](https://app.netlify.com/).
+2. Click **"Add new site"** ➔ **"Import an existing project"**.
+3. Select **GitHub** and choose repository **`Karthik18999/LaborDesk`**.
+4. Build Settings will auto-detect from `netlify.toml`:
+   - **Build Command**: `npm run build`
+   - **Publish Directory**: `.next`
+5. Click **Deploy Site** — Netlify will build and host your Next.js App Router application live!
 
 ---
 
@@ -98,47 +112,8 @@ LaborDesk uses **JSON Web Tokens (JWT)** signed via the **Web Crypto API (HMAC S
 | **Authentication** | [JWT (HMAC SHA-256)](https://jwt.io/) | Secure Edge-compatible JSON Web Token session signing |
 | **Language** | [TypeScript 5](https://www.typescriptlang.org/) | Strict Type safety (`tsc --noEmit`) & Interface definitions |
 | **Styling** | [Tailwind CSS v3](https://tailwindcss.com/) & Vanilla CSS | Responsive design tokens & Dark/Light mode theme engine |
-| **CI / CD Pipeline** | [Vercel Deployment Automation](https://vercel.com/) | Continuous integration, automatic previews & edge builds on `git push` |
+| **CI / CD Pipeline** | Netlify & Vercel | Continuous integration & edge deployments on `git push` |
 | **Containerization** | [Docker](https://www.docker.com/) | Multi-stage production `Dockerfile` for Kubernetes / ECS deployment |
-| **Quality & Linting** | [ESLint 9](https://eslint.org/) | Code quality auditing & standard formatting verification |
-| **Hosting & Edge** | [Vercel Edge Network](https://vercel.com/) | Global CDN delivery, DNS management, SSL certification |
-
----
-
-## 🐳 DevOps & Docker Deployment
-
-LaborDesk includes a multi-stage production **`Dockerfile`** optimized for low-footprint container runtime.
-
-```bash
-# Build Docker Container Image
-docker build -t labordesk:latest .
-
-# Run Container Locally
-docker run -p 3000:3000 labordesk:latest
-```
-
----
-
-## 🚀 Local Development Setup
-
-### 1. Live Web Application
-Access the production application live on Vercel:
-👉 **[https://labor-desk.vercel.app](https://labor-desk.vercel.app)**
-
-### 2. Clone & Run Locally
-```bash
-# Clone the repository
-git clone https://github.com/Karthik18999/LaborDesk.git
-
-# Navigate into project directory
-cd LaborDesk
-
-# Install dependencies
-npm install
-
-# Start local server
-npm run dev
-```
 
 ---
 
