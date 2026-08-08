@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { memoryDb } from '../db';
+import { memoryDb } from '@/database/db';
+import { Worker } from '@/lib/types';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -10,15 +11,15 @@ export async function GET(request: Request) {
   let results = memoryDb.workers;
 
   if (skill && skill !== 'All') {
-    results = results.filter((w) => w.skill === skill);
+    results = results.filter((w: Worker) => w.skill === skill);
   }
   if (status && status !== 'All') {
-    results = results.filter((w) => w.currentStatus === status);
+    results = results.filter((w: Worker) => w.currentStatus === status);
   }
   if (query) {
     const q = query.toLowerCase();
     results = results.filter(
-      (w) =>
+      (w: Worker) =>
         w.fullName.toLowerCase().includes(q) ||
         w.id.toLowerCase().includes(q) ||
         w.district.toLowerCase().includes(q) ||

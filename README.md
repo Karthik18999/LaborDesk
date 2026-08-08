@@ -21,11 +21,35 @@
 
 ---
 
-## 🌟 Overview
+## 🌟 Architecture & Directory Structure
 
-**LaborDesk** bridges the gap between large-scale corporate construction/industrial EPC firms and verified blue-collar laborers. Designed to solve physical labor supply chain bottlenecks, LaborDesk offers a dual-portal architecture featuring an **Enterprise Corporate Portal** for companies and a **Central Admin Operations Console** for physical registry management, candidate matching, and attendance auditing.
+LaborDesk is organized into a modular **3-Tier Enterprise Architecture**: `frontend/`, `backend/`, and `database/`.
 
-> 🔒 **Strict Access Policy:** Workers register physically in-person at central admin offices with Aadhaar verification. Blue-collar workers do not require online login accounts.
+```text
+LaborDesk/
+├── 🎨 frontend/                  # Frontend UI Tier (Components, Theme, Store & Layouts)
+│   ├── components/               # UI components (landing, shared header, admin & company sidebars)
+│   ├── store/                    # React AppContext global store & state persistence
+│   ├── styles/                   # Glassmorphism, CSS tokens, and HSL theme engine
+│   └── README.md                 # Frontend UI documentation & component guide
+│
+├── ⚙️ backend/                   # Backend API Tier (Controllers, Services & Contracts)
+│   ├── controllers/              # Workers, Companies, Requests & Analytics API controllers
+│   ├── services/                 # Candidate matching algorithm, attendance & billing services
+│   └── README.md                 # Backend API contracts & service documentation
+│
+├── 🗄️ database/                  # Database Tier (Schemas, Seeds & Client Helpers)
+│   ├── schema.sql                # Production PostgreSQL relational schema (tables, UUIDs, indexes)
+│   ├── seed.sql                  # Initial mock dataset seed script
+│   ├── db.ts                     # Database connection client & memory persistence fallback
+│   └── README.md                 # ERD diagram, Supabase setup & migration guide
+│
+├── src/                          # Next.js App Router entry pages & route handlers
+├── Dockerfile                    # Multi-stage production Docker container definition
+├── .dockerignore                 # Container build exclusions
+├── package.json
+└── README.md
+```
 
 ---
 
@@ -71,13 +95,11 @@
 
 LaborDesk includes a multi-stage production **`Dockerfile`** optimized for low-footprint container runtime.
 
-### 1. Build Docker Container Image
 ```bash
+# Build Docker Container Image
 docker build -t labordesk:latest .
-```
 
-### 2. Run Container Locally
-```bash
+# Run Container Locally
 docker run -p 3000:3000 labordesk:latest
 ```
 
@@ -102,34 +124,6 @@ npm install
 
 # Start local server
 npm run dev
-```
-
----
-
-## 📁 Repository Directory Structure
-
-```text
-LaborDesk/
-├── src/
-│   ├── app/
-│   │   ├── admin/           # Central Admin Console routes & pages
-│   │   ├── company/         # Corporate Client Portal routes & pages
-│   │   ├── login/           # Authentication & Registration pages
-│   │   ├── forgot-password/ # Password recovery page
-│   │   ├── layout.tsx       # Root layout & theme providers
-│   │   └── page.tsx         # Modern landing page
-│   ├── components/
-│   │   ├── landing/         # Hero, Features, Industries, FAQ, Contact
-│   │   └── shared/          # Header, AdminSidebar, CompanySidebar, Toast
-│   └── lib/
-│       ├── store.tsx        # AppContext state manager & auth store
-│       ├── mockData.ts      # Initial mock dataset (workers, companies)
-│       └── types.ts         # TypeScript definitions & schemas
-├── Dockerfile               # Multi-stage production Docker image definition
-├── .dockerignore            # Container build exclusions
-├── public/                  # Static assets & brand assets
-├── package.json
-└── README.md
 ```
 
 ---

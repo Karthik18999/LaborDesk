@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { memoryDb } from '../db';
+import { memoryDb } from '@/database/db';
 
 export async function GET() {
   return NextResponse.json({

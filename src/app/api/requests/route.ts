@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { memoryDb } from '../db';
+import { memoryDb } from '@/database/db';
+import { WorkerRequest } from '@/lib/types';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -7,7 +8,7 @@ export async function GET(request: Request) {
 
   let results = memoryDb.requests;
   if (companyId) {
-    results = results.filter((r) => r.companyId === companyId);
+    results = results.filter((r: WorkerRequest) => r.companyId === companyId);
   }
 
   return NextResponse.json({
