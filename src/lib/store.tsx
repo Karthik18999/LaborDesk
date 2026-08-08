@@ -21,6 +21,7 @@ import {
   INITIAL_PAYMENTS,
   INITIAL_NOTIFICATIONS,
 } from './mockData';
+import { signJwtToken, verifyJwtToken } from './jwt';
 
 export interface ToastMessage {
   id: string;
@@ -52,13 +53,18 @@ interface AppContextType {
   isDarkMode: boolean;
   toggleTheme: () => void;
 
-  // Auth / Role / User Profile
+  // Auth / Role / User Profile / JWT Token
   role: UserRole | 'guest';
   setRole: (role: UserRole | 'guest') => void;
   currentUser: UserProfile | null;
   setCurrentUser: (user: UserProfile | null) => void;
   currentCompany: Company | null;
   setCurrentCompanyId: (id: string) => void;
+
+  // JWT Security Session
+  authToken: string | null;
+  setAuthToken: (token: string | null) => void;
+  authenticateUserWithJwt: (user: UserProfile) => Promise<string>;
 
   // Registered Auth Accounts (Sign Up Memory)
   registeredUsers: UserProfile[];
@@ -118,10 +124,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<UserRole | 'guest'>('guest');
   const [currentCompanyId, setCurrentCompanyId] = useState<string>('CMP-2001');
 
-  // No hardcoded default demo user
+  // User & JWT State
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
-  // No hardcoded default demo user credentials
+  // Registered Users (Sign Up Memory)
   const [registeredUsers, setRegisteredUsers] = useState<UserProfile[]>([]);
 
   const [industries, setIndustries] = useState<string[]>(DEFAULT_INDUSTRIES);
@@ -144,6 +151,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isDarkMode]);
 
+  // Decode JWT on initial mount if stored
+  useEffect(() => {
+    const savedToken = typeof window !== 'undefined' ? localStorage.getItem('ld_auth_jwt') : null;
+    if (savedToken) {
+      verifyJwtToken(savedToken).then((res) => {
+        if (res.valid && res.payload) {
+          setAuthToken(savedToken);
+          setCurrentUser({
+            name: res.payload.name,
+            email: res.payload.email,
+            role: res.payload.role,
+            companyName: res.payload.companyName,
+          });
+          setRole(res.payload.role);
+        }
+      });
+    }
+  }, []);
+
   const toggleTheme = () => setIsDarkMode((prev) => !prev);
 
   const addToast = (toast: Omit<ToastMessage, 'id'>) => {
@@ -156,6 +182,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  /**
+   * Generates a signed JWT token for the authenticated user session
+   */
+  const authenticateUserWithJwt = async (user: UserProfile): Promise<string> => {
+    const token = await signJwtToken({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      companyName: user.companyName,
+    });
+
+    setAuthToken(token);
+    setCurrentUser(user);
+    setRole(user.role);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ld_auth_jwt', token);
+    }
+
+    return token;
   };
 
   const addRegisteredUser = (user: UserProfile) => {
@@ -383,6 +431,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setCurrentUser,
         currentCompany,
         setCurrentCompanyId,
+        authToken,
+        setAuthToken,
+        authenticateUserWithJwt,
         registeredUsers,
         addRegisteredUser,
         industries,

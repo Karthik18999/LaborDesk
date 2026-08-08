@@ -19,6 +19,7 @@ export default function LoginPage() {
     addRegisteredUser,
     setCurrentUser,
     setCurrentCompanyId,
+    authenticateUserWithJwt,
     companies,
   } = useApp();
   const router = useRouter();
@@ -86,8 +87,8 @@ export default function LoginPage() {
     return { score: 3, label: 'Strong', color: 'bg-emerald-500 text-emerald-600', barWidth: '100%' };
   };
 
-  // Strict Admin Submit
-  const handleAdminSubmit = (e: React.FormEvent) => {
+  // Strict Admin Submit with JWT Signing
+  const handleAdminSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSignUpSuccessMsg(null);
     setErrorMessage(null);
@@ -128,7 +129,7 @@ export default function LoginPage() {
       return;
     }
 
-    // SIGN IN (STRICT - NO DEFAULT FALLBACKS)
+    // SIGN IN (STRICT - JWT SIGNING)
     const inputEmail = adminSignIn.email.trim().toLowerCase();
     const inputPassword = adminSignIn.password;
 
@@ -163,23 +164,23 @@ export default function LoginPage() {
 
     const loggedInName = matchedUser.name;
 
-    setCurrentUser({
+    // Authenticate session & generate signed JWT token
+    const jwtToken = await authenticateUserWithJwt({
       name: loggedInName,
       email: adminSignIn.email,
       role: 'admin',
     });
 
-    setRole('admin');
     addToast({
       title: `Welcome, ${loggedInName}!`,
-      description: 'Authenticated successfully as Administrator.',
+      description: 'Authenticated securely via JWT Token.',
       variant: 'success',
     });
     router.push('/admin');
   };
 
-  // Strict Company Submit
-  const handleCompanySubmit = (e: React.FormEvent) => {
+  // Strict Company Submit with JWT Signing
+  const handleCompanySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSignUpSuccessMsg(null);
     setErrorMessage(null);
@@ -235,7 +236,7 @@ export default function LoginPage() {
       return;
     }
 
-    // SIGN IN (STRICT - NO DEFAULT FALLBACKS)
+    // SIGN IN (STRICT - JWT SIGNING)
     const inputEmail = companySignIn.email.trim().toLowerCase();
     const inputPassword = companySignIn.password;
 
@@ -279,17 +280,17 @@ export default function LoginPage() {
     const loggedInName = matchedUser.name;
     const companyName = matchedUser.companyName || matchedCompany?.companyName;
 
-    setCurrentUser({
+    // Authenticate session & generate signed JWT token
+    const jwtToken = await authenticateUserWithJwt({
       name: loggedInName,
       email: companySignIn.email,
       role: 'company',
       companyName: companyName,
     });
 
-    setRole('company');
     addToast({
       title: `Welcome, ${loggedInName}!`,
-      description: 'Authenticated successfully to Corporate Portal.',
+      description: 'Authenticated securely via JWT Token.',
       variant: 'success',
     });
     router.push('/company');
@@ -607,7 +608,7 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4"
               >
-                {authMode === 'signin' ? 'Sign In to Company Portal' : 'Register Company Account'}
+                {authMode === 'signin' ? 'Sign In & Issue JWT Token' : 'Register Company Account'}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
@@ -769,7 +770,7 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4"
               >
-                {authMode === 'signin' ? 'Sign In as Admin' : 'Register New Admin Account'}
+                {authMode === 'signin' ? 'Sign In & Issue JWT Token' : 'Register New Admin Account'}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
